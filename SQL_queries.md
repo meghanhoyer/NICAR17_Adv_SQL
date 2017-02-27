@@ -1,7 +1,7 @@
 # Below are the SQL commands used for Advanced SQL for analysis at NICAR16
 * These commands were written in SQLite
 
-## Get to know your data 
+## KNOW YOUR DATA
 
 How many records are there? 
 
@@ -41,7 +41,7 @@ If it's not, Alternatively, we could find the 10 earliest and 10 latest dates:
     ORDER BY 1 DESC
     LIMIT 10;
 
-Check out another field — are there are bunch of crazy entries? Can be a good indication of how clean or dirty your data is. 
+It's always good to check out a few other common fields to check how clean or dirty your data is. State names are always a good place to start when you're looking for missing or unusual values, so we'll check there. 
 
     SELECT site_state, count(*)
     FROM inspection
@@ -55,5 +55,9 @@ Overall looks pretty good — some blanks, some entries for the UK.
     WHERE site_state IS NULL;
     
  
-    
+    ALTER TABLE accident
+    ADD COLUMN EventYear text;   
+
+    UPDATE accident
+    SET EventYear = strftime('%Y', event_date);
     
