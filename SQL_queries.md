@@ -35,7 +35,7 @@ Alternatively, we could count the number of distinct 'activity_nr' records:
 
 So activity_nr is definitely a unique value. Let's make it a primary key:
 
-    CREATE INDEX PK_inspection_activity_nr ON inspection(activity_nr)
+    CREATE INDEX PK_inspection_activity_nr ON inspection(activity_nr);
     
 You'll run this and it'll look like nothing happened, but that's fine. You will see under "Indexes" now that one exists. While we're at it, let's also create indexes on the other two tables.
 
@@ -44,9 +44,9 @@ The three tables we're messing with are connected through these fields:
 
 On accident_injury, rel_insp_nr links that table to the related inspection -- but there can be more than one injury per inspection, so this isn't a unique value. So we'll just use a regular single-column index. Same goes for summary_nr in both tables - there can be more than one value present, so it's not a PK:
 
-    CREATE INDEX IX_accident_injury_rel_insp_nr ON accident_injury(rel_insp_nr)
-    CREATE INDEX IX_accident_injury_summary_nr ON accident_injury(summary_nr)
-    CREATE INDEX IX_accident_summary_nr on accident(summary_nr)
+    CREATE INDEX IX_accident_injury_rel_insp_nr ON accident_injury(rel_insp_nr);
+    CREATE INDEX IX_accident_injury_summary_nr ON accident_injury(summary_nr);
+    CREATE INDEX IX_accident_summary_nr on accident(summary_nr);
 
 OK, back to truthing your data. 
 What's the date range? 
@@ -131,16 +131,15 @@ Now, how long was the longest case open?
 
     SELECT activity_nr, open_date, close_case_date, (julianday(close_case_date) - julianday(open_date)) AS datediff
     FROM inspection
-    ORDER BY datediff DESC
+    ORDER BY datediff DESC;
 
 Translate to years (approximately)
 
     SELECT activity_nr, open_date, close_case_date,  
     	(julianday(close_case_date) - julianday(open_date))/365 AS datediff 
     FROM inspection
-    ORDER BY datediff DESC
-    ALTER TABLE accident
-    ADD COLUMN EventYear text;   
+    ORDER BY datediff DESC;
+ 
 
 Let's pull out inspections relating to the United States Postal Service, just to flex our filter muscles:
 Take a look at some of the different ways it's spelled.
@@ -171,7 +170,7 @@ Let's take a look at how to use subqueries. What if I want to know how many of t
     SELECT estab_name, COUNT(insp_type) AS acc_or_complaint_insp
     FROM inspection
     WHERE insp_type = 'A' OR insp_type = 'B'
-    GROUP BY 1
+    GROUP BY 1;
 
 Then let's combine it with another query to be able to compare it to the total inspections:
 
