@@ -1,6 +1,16 @@
 # Below are the SQL commands used for Advanced SQL for analysis at NICAR16
 * These commands were written in SQLite
 
+## SET YOURSELF UP PROPERLY
+
+Indexing is a way to help SQL comb through your data and find what it needs faster.  It's used in matching data between tables, so becomes important when you're performing joins. It might not make much difference in a smaller dataset like this, but when you're handling millions of records, having indexes on some key columns will help you immensely. (This is a really basic walkthrough of this concept; you'll want to read up to understand it better, and you should definitely read more before creating a clustered index)
+
+Indexing nomenclature: You'll need to run a query to name each index you create. 
+A good basic nomenclature for index naming is:
+* PK_tablename_columnname on primary keys (these need to be unique, single values in your table. can't be null)
+* IX_tablename_columnname on single-column indexes (these do not have to be unique values)
+* CLIX_tablename_columnname on clustered indexes (these are indexes created across multiple fields, so an index that clusters city and state, for instance)
+
 ## KNOW YOUR DATA
 
 How many records are there? 
@@ -23,6 +33,22 @@ Alternatively, we could count the number of distinct 'activity_nr' records:
     SELECT count(DISTINCT activity_nr)
     FROM inspection;
 
+OK, so activity_nr is definitely a unique value. Let's make it a primary key:
+
+    CREATE INDEX PK_inspection_activity_nr ON inspection(activity_nr)
+    
+You'll run this and it'll look like nothing happened, but that's fine. You will see under "Indexes" now that one exists. While we're at it, let's also create indexes on the other two tables.
+
+The three tables we're messing with are connected through these fields:  
+    Inspection.activity_nr --> accident_injury.rel_insp_nr, accident_injury.summary_nr --> accident.summary_nr
+
+On accident_injury, rel_insp_nr links that table to the related inspection -- but there can be more than one injury per inspection, so this isn't a unique value. So we'll just use a regular single-column index. Same goes for summary_nr in both tables - there can be more than one value present, so it's not a PK:
+
+    CREATE INDEX IX_accident_injury_rel_insp_nr ON accident_injury(rel_insp_nr)
+    CREATE INDEX IX_accident_injury_summary_nr ON accident_injury(summary_nr)
+    CREATE INDEX IX_accident_summary_nr on accident(summary_nr)
+
+OK, back to truthing your data. 
 What's the date range? 
 
     SELECT min(open_date) as earliest, max(open_date) as latest
@@ -203,20 +229,17 @@ And then take a look at the results (what percent of inspections were announced 
     
 Now we'll take a look at the inspections that are connected with accidents. 
 
-The three tables we're messing with are connected through these fields:  
-    Inspection.activity_nr --> accident_injury.rel_insp_nr, accident_injury.summary_nr --> accident.summary_nr
-
 How many inspections included an accident that involved an injury?
 
     SELECT count(*)
     FROM inspection A
-    INNER JOIN injury B
+    INNER JOIN accident_injury B
     ON A.activity_nr =  B.rel_insp_nr
     
 Let's check to make sure that every record in the accident_injury table match a record in the inspection table.
 
     SELECT *
-    FROM injury A
+    FROM accident_injury A
     LEFT JOIN inspection B
     ON A.rel_insp_nr = B.activity_nr
     WHERE B.activity_nr IS NULL
@@ -226,7 +249,7 @@ Let's make a table with the result so we can query it later
     CREATE TABLE inspection_plus_injury AS     
     SELECT *    
     FROM inspection A
-    INNER JOIN injury B
+    INNER JOIN accident_injury B
     ON A.activity_nr =  B.rel_insp_nr
     
 Now let's join this with data from the accident table, which includes fields like:
