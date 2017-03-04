@@ -105,7 +105,7 @@ And then:
 How's it look?
 
     SELECT open_date, open_year       
-    FROM inspection;`       
+    FROM inspection;       
 
 How many inspections were there per year?
 
@@ -180,15 +180,15 @@ Then let's combine it with another query to be able to compare it to the total i
         (SELECT estab_name, COUNT(insp_type) AS acc_or_complaint_insp
         FROM inspection
         WHERE insp_type = 'A' OR insp_type = 'B'
-        GROUP BY 1) B
+        GROUP BY 1) as B
     ON a.estab_name = b.estab_name
-    GROUP BY 1
+    GROUP BY 1;
 
 How often was advanced notice given?
 
     SELECT adv_notice, count(*)
     FROM inspection
-    GROUP BY 1
+    GROUP BY 1;
 
 It's fair to say that advanced notice doesn't seem to be the norm, but what if it is for one company?
 Let's do another subquery to compare this to the total number of inspections.
@@ -199,9 +199,9 @@ Let's do another subquery to compare this to the total number of inspections.
         (SELECT estab_name, COUNT(insp_type) AS advanced_notice_insp
         FROM inspection
         WHERE adv_notice = 'Y'
-        GROUP BY 1) B
+        GROUP BY 1) as B
     ON a.estab_name = b.estab_name
-    GROUP BY 1
+    GROUP BY 1;
 
 We can make that into a separate table to query: 
 
@@ -213,9 +213,9 @@ We can make that into a separate table to query:
         (SELECT estab_name, COUNT(insp_type) AS advanced_notice_insp
         FROM inspection
         WHERE adv_notice = 'Y'
-        GROUP BY 1) B
+        GROUP BY 1) as B
     ON a.estab_name = b.estab_name
-    GROUP BY 1
+    GROUP BY 1;
 
 And then take a look at the results (what percent of inspections were announced in advanced? I filtered for places that had
 	had more than 5 inspections)
@@ -233,7 +233,7 @@ How many inspections included an accident that involved an injury?
     SELECT count(*)
     FROM inspection A
     INNER JOIN accident_injury B
-    ON A.activity_nr =  B.rel_insp_nr
+    ON A.activity_nr =  B.rel_insp_nr;
     
 Let's check to make sure that every record in the accident_injury table match a record in the inspection table.
 
@@ -241,7 +241,7 @@ Let's check to make sure that every record in the accident_injury table match a 
     FROM accident_injury A
     LEFT JOIN inspection B
     ON A.rel_insp_nr = B.activity_nr
-    WHERE B.activity_nr IS NULL
+    WHERE B.activity_nr IS NULL;
     
 Let's make a table with the result so we can query it later
 
@@ -249,7 +249,7 @@ Let's make a table with the result so we can query it later
     SELECT *    
     FROM inspection A
     INNER JOIN accident_injury B
-    ON A.activity_nr =  B.rel_insp_nr
+    ON A.activity_nr =  B.rel_insp_nr;
     
 Now let's join this with data from the accident table, which includes fields like:
 	1) 'event_desc': Short description of event and 2) 'event_date'
@@ -258,18 +258,18 @@ Now let's join this with data from the accident table, which includes fields lik
     SELECT * 
     FROM inspection_plus_injury A
     INNER JOIN accident B     
-    ON A.summary_nr = B.summary_nr
+    ON A.summary_nr = B.summary_nr;
 
 And now let's take a peak.
 
     SELECT estab_name, event_desc
     FROM osha_analysis_master
-    WHERE event_desc LIKE '%horse%'
+    WHERE event_desc LIKE '%horse%';
 
 Or...
 
     SELECT estab_name, event_keyword
     FROM osha_analysis_master
-    WHERE event_keyword LIKE '%burn%'
+    WHERE event_keyword LIKE '%burn%';
 
  
