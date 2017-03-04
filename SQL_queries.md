@@ -33,7 +33,7 @@ Alternatively, we could count the number of distinct 'activity_nr' records:
     SELECT count(DISTINCT activity_nr)
     FROM inspection;
 
-OK, so activity_nr is definitely a unique value. Let's make it a primary key:
+So activity_nr is definitely a unique value. Let's make it a primary key:
 
     CREATE INDEX PK_inspection_activity_nr ON inspection(activity_nr)
     
